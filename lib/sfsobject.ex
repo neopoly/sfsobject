@@ -1,0 +1,2 @@
+defmodule Sfsobject do
+end
