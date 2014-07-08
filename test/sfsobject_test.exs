@@ -1,4 +1,4 @@
-defmodule SfsobjectTest do
+defmodule SFSObjectTest do
   use ExUnit.Case
 
   test "the truth" do

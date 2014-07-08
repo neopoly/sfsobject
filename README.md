@@ -1,4 +1,4 @@
-Sfsobject
+SFSObject
 =========
 
 ** TODO: Add description **

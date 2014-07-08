@@ -1,4 +1,4 @@
-defmodule Sfsobject.Mixfile do
+defmodule SFSObject.Mixfile do
   use Mix.Project
 
   def project do

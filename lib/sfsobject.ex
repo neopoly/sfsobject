@@ -1,2 +1,2 @@
-defmodule Sfsobject do
+defmodule SFSObject do
 end
