@@ -4,7 +4,7 @@ defmodule SFSObject.Mixfile do
   def project do
     [app: :sfsobject,
      version: "0.0.1",
-     elixir: "~> 0.14.2-dev",
+     elixir: "~> 1.0.3",
      deps: deps]
   end
 
