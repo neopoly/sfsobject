@@ -101,4 +101,103 @@ defmodule SFSObjectTest do
     object = SFSObject.put_string(object, "key", "other")
     assert SFSObject.get_string(object, "key") == "other"
   end
+
+  test "bool_array" do
+    object = SFSObject.new
+    assert SFSObject.get_bool_array(object, "key") == nil
+
+    object = SFSObject.put_bool_array(object, "key", [true,false])
+    assert SFSObject.get_bool_array(object, "key") == [true,false]
+
+    object = SFSObject.put_bool_array(object, "key", [false, false])
+    assert SFSObject.get_bool_array(object, "key") == [false, false]
+  end
+
+  test "byte_array" do
+    object = SFSObject.new
+    assert SFSObject.get_byte_array(object, "key") == nil
+
+    object = SFSObject.put_byte_array(object, "key", [1, 2])
+    assert SFSObject.get_byte_array(object, "key") == [1, 2]
+
+    object = SFSObject.put_byte_array(object, "key", [-2, 1])
+    assert SFSObject.get_byte_array(object, "key") == [-2, 1]
+  end
+
+  test "byte_array" do
+    object = SFSObject.new
+    assert SFSObject.get_byte_array(object, "key") == nil
+
+    object = SFSObject.put_byte_array(object, "key", [1, 2])
+    assert SFSObject.get_byte_array(object, "key") == [1, 2]
+
+    object = SFSObject.put_byte_array(object, "key", [-2, 1])
+    assert SFSObject.get_byte_array(object, "key") == [-2, 1]
+  end
+
+  test "short_array" do
+    object = SFSObject.new
+    assert SFSObject.get_short_array(object, "key") == nil
+
+    object = SFSObject.put_short_array(object, "key", [1, 2])
+    assert SFSObject.get_short_array(object, "key") == [1, 2]
+
+    object = SFSObject.put_short_array(object, "key", [-2, 1])
+    assert SFSObject.get_short_array(object, "key") == [-2, 1]
+  end
+
+  test "int_array" do
+    object = SFSObject.new
+    assert SFSObject.get_int_array(object, "key") == nil
+
+    object = SFSObject.put_int_array(object, "key", [1, 2])
+    assert SFSObject.get_int_array(object, "key") == [1, 2]
+
+    object = SFSObject.put_int_array(object, "key", [-2, 1])
+    assert SFSObject.get_int_array(object, "key") == [-2, 1]
+  end
+
+  test "long_array" do
+    object = SFSObject.new
+    assert SFSObject.get_long_array(object, "key") == nil
+
+    object = SFSObject.put_long_array(object, "key", [1, 2])
+    assert SFSObject.get_long_array(object, "key") == [1, 2]
+
+    object = SFSObject.put_long_array(object, "key", [-2, 1])
+    assert SFSObject.get_long_array(object, "key") == [-2, 1]
+  end
+
+  test "float_array" do
+    object = SFSObject.new
+    assert SFSObject.get_float_array(object, "key") == nil
+
+    object = SFSObject.put_float_array(object, "key", [1.5, 2.0])
+    assert SFSObject.get_float_array(object, "key") == [1.5, 2.0]
+
+    object = SFSObject.put_float_array(object, "key", [-2.0, 1.5])
+    assert SFSObject.get_float_array(object, "key") == [-2.0, 1.5]
+  end
+
+  test "double_array" do
+    object = SFSObject.new
+    assert SFSObject.get_double_array(object, "key") == nil
+
+    object = SFSObject.put_double_array(object, "key", [1.5, 2.0])
+    assert SFSObject.get_double_array(object, "key") == [1.5, 2.0]
+
+    object = SFSObject.put_double_array(object, "key", [-2.0, 1.5])
+    assert SFSObject.get_double_array(object, "key") == [-2.0, 1.5]
+  end
+
+  test "string_array" do
+    object = SFSObject.new
+    assert SFSObject.get_string_array(object, "key") == nil
+
+    object = SFSObject.put_string_array(object, "key", ["José", "Valim"])
+    assert SFSObject.get_string_array(object, "key") == ["José", "Valim"]
+
+    object = SFSObject.put_string_array(object, "key", ["other", "string"])
+    assert SFSObject.get_string_array(object, "key") == ["other", "string"]
+  end
 end

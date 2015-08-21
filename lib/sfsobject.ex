@@ -85,14 +85,70 @@ defmodule SFSObject do
     get_data(object, key, :string)
   end
 
-  # BOOL_ARRAY(9),
-  # BYTE_ARRAY(10),
-  # SHORT_ARRAY(11),
-  # INT_ARRAY(12),
-  # LONG_ARRAY(13),
-  # FLOAT_ARRAY(14),
-  # DOUBLE_ARRAY(15),
-  # UTF_STRING_ARRAY(16),
+  def put_bool_array(object, key, value) when is_list(value) do
+    put_data(object, key, :bool_array, value)
+  end
+
+  def get_bool_array(object, key) do
+    get_data(object, key, :bool_array)
+  end
+
+  def put_byte_array(object, key, value) when is_list(value) do
+    put_data(object, key, :byte_array, value)
+  end
+
+  def get_byte_array(object, key) do
+    get_data(object, key, :byte_array)
+  end
+
+  def put_short_array(object, key, value) when is_list(value) do
+    put_data(object, key, :short_array, value)
+  end
+
+  def get_short_array(object, key) do
+    get_data(object, key, :short_array)
+  end
+
+  def put_int_array(object, key, value) when is_list(value) do
+    put_data(object, key, :int_array, value)
+  end
+
+  def get_int_array(object, key) do
+    get_data(object, key, :int_array)
+  end
+
+  def put_long_array(object, key, value) when is_list(value) do
+    put_data(object, key, :long_array, value)
+  end
+
+  def get_long_array(object, key) do
+    get_data(object, key, :long_array)
+  end
+
+  def put_float_array(object, key, value) when is_list(value) do
+    put_data(object, key, :float_array, value)
+  end
+
+  def get_float_array(object, key) do
+    get_data(object, key, :float_array)
+  end
+
+  def put_double_array(object, key, value) when is_list(value) do
+    put_data(object, key, :double_array, value)
+  end
+
+  def get_double_array(object, key) do
+    get_data(object, key, :double_array)
+  end
+
+  def put_string_array(object, key, value) when is_list(value) do
+    put_data(object, key, :string_array, value)
+  end
+
+  def get_string_array(object, key) do
+    get_data(object, key, :string_array)
+  end
+
   # SFS_ARRAY(17),
   # SFS_OBJECT(18),
   # CLASS(19);
