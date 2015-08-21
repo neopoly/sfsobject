@@ -149,13 +149,30 @@ defmodule SFSObject do
     get_data(object, key, :string_array)
   end
 
-  # SFS_ARRAY(17),
-  # SFS_OBJECT(18),
-  # CLASS(19);
+  def put_array(object, key, value) when is_list(value) do
+    put_data(object, key, :array, value)
+  end
+
+  def get_array(object, key) do
+    get_data(object, key, :array)
+  end
+
+  def put_object(object, key, %SFSObject{} = value) do
+    put_data(object, key, :object, value)
+  end
+
+  def get_object(object, key) do
+    get_data(object, key, :object)
+  end
+
+  # TODO CLASS(19);
+
+  def wrap(type, value) do
+    SFSObject.DataWrapper.new(type, value)
+  end
 
   defp put_data(%SFSObject{data: data} = object, key, type, value) do
-    wrapped = SFSObject.DataWrapper.new(type, value)
-    data = Map.put(data, key, wrapped)
+    data = Map.put(data, key, wrap(type, value))
     %{object | data: data}
   end
 

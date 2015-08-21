@@ -124,17 +124,6 @@ defmodule SFSObjectTest do
     assert SFSObject.get_byte_array(object, "key") == [-2, 1]
   end
 
-  test "byte_array" do
-    object = SFSObject.new
-    assert SFSObject.get_byte_array(object, "key") == nil
-
-    object = SFSObject.put_byte_array(object, "key", [1, 2])
-    assert SFSObject.get_byte_array(object, "key") == [1, 2]
-
-    object = SFSObject.put_byte_array(object, "key", [-2, 1])
-    assert SFSObject.get_byte_array(object, "key") == [-2, 1]
-  end
-
   test "short_array" do
     object = SFSObject.new
     assert SFSObject.get_short_array(object, "key") == nil
@@ -199,5 +188,28 @@ defmodule SFSObjectTest do
 
     object = SFSObject.put_string_array(object, "key", ["other", "string"])
     assert SFSObject.get_string_array(object, "key") == ["other", "string"]
+  end
+
+  test "array" do
+    object = SFSObject.new
+    assert SFSObject.get_array(object, "key") == nil
+
+    string = SFSObject.wrap(:string, "hello")
+    int = SFSObject.wrap(:int, 1)
+
+    object = SFSObject.put_array(object, "key", [string, int])
+
+    got = SFSObject.get_array(object, "key")
+    assert got == [string, int]
+  end
+
+  test "object" do
+    object = SFSObject.new
+    other = SFSObject.new
+
+    assert SFSObject.get_object(object, "other") == nil
+
+    object = SFSObject.put_object(object, "other", other)
+    assert SFSObject.get_object(object, "other") == other
   end
 end
