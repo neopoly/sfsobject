@@ -1,14 +1,6 @@
 defmodule SFSObject do
   defstruct data: %{}
 
-  defmodule DataWrapper do
-    defstruct [:type, :value]
-
-    def new(type, value) do
-      %DataWrapper{type: type, value: value}
-    end
-  end
-
   def new() do
     %SFSObject{}
   end
