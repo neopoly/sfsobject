@@ -159,12 +159,9 @@ defmodule SFSObject do
 
   # TODO CLASS(19);
 
-  def wrap(type, value) do
-    SFSObject.DataWrapper.new(type, value)
-  end
-
   defp put_data(%SFSObject{data: data} = object, key, type, value) do
-    data = Map.put(data, key, wrap(type, value))
+    wrap = SFSObject.DataWrapper.new(type, value)
+    data = Map.put(data, key, wrap)
     %{object | data: data}
   end
 
