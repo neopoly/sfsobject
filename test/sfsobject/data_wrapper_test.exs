@@ -14,8 +14,8 @@ defmodule SFSObject.DataWrapperTest do
     end
 
     defp assert_roundtrip(value) do
-      encoded = SFSObject.DataWrapper.Encoder.encode(value)
-      decoded = SFSObject.DataWrapper.Decoder.decode(to_string(encoded))
+      encoded = value |> SFSObject.DataWrapper.Encoder.encode
+      decoded = encoded |> to_string |> SFSObject.DataWrapper.Decoder.decode
 
       assert {^value, <<>>} = decoded
     end
