@@ -41,6 +41,15 @@ defmodule SFSObject.DataWrapperTest do
       assert_roundtrip int(-2147483649), int(2147483647)
     end
 
+    test "long" do
+      assert_roundtrip long(0)
+      assert_roundtrip long(9223372036854775807)
+      assert_roundtrip long(-9223372036854775808)
+
+      assert_roundtrip long(9223372036854775808), long(-9223372036854775808)
+      assert_roundtrip long(-9223372036854775809), long(9223372036854775807)
+    end
+
     test "sfsobject" do
       assert_roundtrip object(SFSObject.new)
 
@@ -72,6 +81,7 @@ defmodule SFSObject.DataWrapperTest do
     defp byte(value), do: data(:byte, value)
     defp short(value), do: data(:short, value)
     defp int(value), do: data(:int, value)
+    defp long(value), do: data(:long, value)
     defp object(value), do: data(:object, value)
 
     defp data(type, value) do
