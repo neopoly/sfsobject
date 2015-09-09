@@ -62,6 +62,13 @@ defmodule SFSObject.DataWrapperTest do
       assert_roundtrip double(-1.01)
     end
 
+    test "string" do
+      assert_roundtrip string("foo")
+      assert_roundtrip string("José")
+
+      assert_decoded <<8, 0, 5, 74, 111, 115, -61, -87>>, string("José")
+    end
+
     test "sfsobject" do
       assert_roundtrip object(SFSObject.new)
 
@@ -82,7 +89,11 @@ defmodule SFSObject.DataWrapperTest do
 
     defp assert_roundtrip(value, expected) do
       encoded = value |> SFSObject.DataWrapper.Encoder.encode
-      { actual, rest } = encoded |> IO.iodata_to_binary |> SFSObject.DataWrapper.Decoder.decode
+      assert_decoded encoded, expected
+    end
+
+    def assert_decoded(input, expected) do
+      { actual, rest } = input |> IO.iodata_to_binary |> SFSObject.DataWrapper.Decoder.decode
 
       assert expected == actual
       assert <<>> == rest
@@ -96,6 +107,7 @@ defmodule SFSObject.DataWrapperTest do
     defp long(value), do: data(:long, value)
     defp float(value), do: data(:float, value)
     defp double(value), do: data(:double, value)
+    defp string(value), do: data(:string, value)
     defp object(value), do: data(:object, value)
 
     defp data(type, value) do
