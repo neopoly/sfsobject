@@ -15,12 +15,17 @@ defmodule SFSObject.DataWrapperTest do
     end
 
     test "sfsobject" do
-      assert_roundtrip SFSObject.new
-      assert_roundtrip data_wrapper(:sfsobject, SFSObject.new), SFSObject.new
+      assert_roundtrip data_wrapper(:object, SFSObject.new)
 
-      assert_roundtrip SFSObject.new |> put_null("a")
-      assert_roundtrip SFSObject.new |> put_null("b")
-      assert_roundtrip SFSObject.new |> put_bool("truthy", true) |> put_bool("falsey", false)
+      assert_roundtrip data_wrapper(:object, SFSObject.new |> put_null("a"))
+      assert_roundtrip data_wrapper(:object, SFSObject.new |> put_null("b"))
+      assert_roundtrip data_wrapper(:object, SFSObject.new
+      |> put_bool("truthy", true) |> put_bool("falsey", false))
+    end
+
+    test "sfsobject nested" do
+      assert_roundtrip data_wrapper :object, SFSObject.new
+      |> put_object("nested", SFSObject.new |> put_null("null"))
     end
 
     defp assert_roundtrip(value) do

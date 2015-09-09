@@ -24,11 +24,7 @@ defmodule SFSObject.DataWrapper do
       [ output | <<1, 0>> ]
     end
 
-    def encode(%SFSObject{data: data}, <<output::bytes>>) do
-      [ output | encode_map(data) ]
-    end
-
-    def encode(%DataWrapper{type: :sfsobject, value: %SFSObject{data: data}}, <<output::bytes>>) do
+    def encode(%DataWrapper{type: :object, value: %SFSObject{data: data}}, <<output::bytes>>) do
       [ output | encode_map(data) ]
     end
 
@@ -64,7 +60,7 @@ defmodule SFSObject.DataWrapper do
 
     def decode(<<18, size::16, input::bytes>>) do
       { data, input } = decode_map(%{}, size, input)
-      { SFSObject.new(data), input }
+      { DataWrapper.new(:object, SFSObject.new(data)), input }
     end
 
     defp decode_map(data, 0, <<input::bytes>>) do
