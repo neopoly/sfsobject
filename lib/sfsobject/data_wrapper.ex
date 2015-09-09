@@ -63,6 +63,14 @@ defmodule SFSObject.DataWrapper do
       [ output | <<10, size::size(32), data::binary>> ]
     end
 
+    def encode(%DataWrapper{type: :short_array, value: value}, <<output::bytes>>) do
+      size = length(value)
+      data = value
+        |> Enum.map(fn(e) -> <<e::signed-size(16)>> end)
+        |> IO.iodata_to_binary
+      [ output | <<11, size::size(16), data::binary>> ]
+    end
+
     def encode(%DataWrapper{type: :object, value: %SFSObject{data: data}}, <<output::bytes>>) do
       [ output | encode_map(data) ]
     end
@@ -138,6 +146,12 @@ defmodule SFSObject.DataWrapper do
       { DataWrapper.new(:byte_array, value), input }
     end
 
+    # TODO binary-size(4) is hardcoded?
+    def decode(<<11, size::size(16), value::binary-size(4), input::bytes>>) do
+      value = transform(:short, size, value)
+      { DataWrapper.new(:short_array, value), input }
+    end
+
     def decode(<<18, size::size(16), input::bytes>>) do
       { data, input } = decode_map(%{}, size, input)
       { DataWrapper.new(:object, SFSObject.new(data)), input }
@@ -161,8 +175,13 @@ defmodule SFSObject.DataWrapper do
     end
 
     defp transform(_, 0, _, acc), do: acc
+
     defp transform(:byte, size, <<val::signed-size(8), input::binary>>, acc) do
       transform(:byte, size - 1, input, acc ++ [ val ])
+    end
+
+    defp transform(:short, size, <<val::signed-size(16), input::binary>>, acc) do
+      transform(:short, size - 1, input, acc ++ [ val ])
     end
   end
 end
