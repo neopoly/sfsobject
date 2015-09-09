@@ -28,12 +28,8 @@ defmodule SFSObject.DataWrapperTest do
       |> put_object("nested", SFSObject.new |> put_null("null"))
     end
 
-    defp assert_roundtrip(value) do
-      assert_roundtrip value, value
-    end
-
-    defp assert_roundtrip(value, expected) do
-      encoded = value |> SFSObject.DataWrapper.Encoder.encode
+    defp assert_roundtrip(expected) do
+      encoded = expected |> SFSObject.DataWrapper.Encoder.encode
       { actual, rest } = encoded |> to_string |> SFSObject.DataWrapper.Decoder.decode
 
       assert expected == actual
