@@ -39,11 +39,11 @@ defmodule SFSObject.DataWrapper do
         [ encode_key(key), encode(value) ]
       end)
 
-      [ <<type, size::16>> | data ]
+      [ <<type, size::size(8)-unit(2)>> | data ]
     end
 
     defp encode_key(key) do
-      <<String.length(key)::16, key::binary>>
+      <<String.length(key)::size(8)-unit(2), key::binary>>
     end
   end
 
@@ -66,7 +66,7 @@ defmodule SFSObject.DataWrapper do
       { DataWrapper.new(:byte, value), input }
     end
 
-    def decode(<<18, size::16, input::bytes>>) do
+    def decode(<<18, size::size(8)-unit(2), input::bytes>>) do
       { data, input } = decode_map(%{}, size, input)
       { DataWrapper.new(:object, SFSObject.new(data)), input }
     end
@@ -75,7 +75,7 @@ defmodule SFSObject.DataWrapper do
       { data, input }
     end
 
-    defp decode_map(data, size, <<key_length::16, key::binary-size(key_length), input::bytes>>) do
+    defp decode_map(data, size, <<key_length::size(8)-unit(2), key::binary-size(key_length), input::bytes>>) do
       { value, input } = decode(input)
       data = Map.put(data, key, value)
       decode_map(data, size - 1, input)
