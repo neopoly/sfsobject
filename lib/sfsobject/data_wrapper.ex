@@ -16,12 +16,8 @@ defmodule SFSObject.DataWrapper do
       [ output | <<0>> ]
     end
 
-    def encode(%DataWrapper{type: :bool, value: true}, <<output::bytes>>) do
-      [ output | <<1, 1>> ]
-    end
-
-    def encode(%DataWrapper{type: :bool, value: false}, <<output::bytes>>) do
-      [ output | <<1, 0>> ]
+    def encode(%DataWrapper{type: :bool, value: value}, <<output::bytes>>) do
+      [ output | <<1, encode_bool(value)>> ]
     end
 
     def encode(%DataWrapper{type: :byte, value: value}, <<output::bytes>>) do
@@ -53,6 +49,12 @@ defmodule SFSObject.DataWrapper do
       [ output | <<8, size::size(8)-unit(2), value::binary>> ]
     end
 
+    def encode(%DataWrapper{type: :bool_array, value: value}, <<output::bytes>>) do
+      size = length(value)
+      data = value |> Enum.map(&encode_bool/1) |> IO.iodata_to_binary
+      [ output | <<9, size::size(8)-unit(2), data::binary>> ]
+    end
+
     def encode(%DataWrapper{type: :object, value: %SFSObject{data: data}}, <<output::bytes>>) do
       [ output | encode_map(data) ]
     end
@@ -70,6 +72,9 @@ defmodule SFSObject.DataWrapper do
     defp encode_key(key) do
       <<String.length(key)::size(8)-unit(2), key::binary>>
     end
+
+    defp encode_bool(true), do: 1
+    defp encode_bool(false), do: 0
   end
 
   defmodule Decoder do
@@ -115,6 +120,11 @@ defmodule SFSObject.DataWrapper do
       { DataWrapper.new(:string, value), input }
     end
 
+    def decode(<<9, size::size(8)-unit(2), value::binary-size(size), input::bytes>>) do
+      value = value |> to_char_list |> Enum.map(&decode_bool/1)
+      { DataWrapper.new(:bool_array, value), input }
+    end
+
     def decode(<<18, size::size(8)-unit(2), input::bytes>>) do
       { data, input } = decode_map(%{}, size, input)
       { DataWrapper.new(:object, SFSObject.new(data)), input }
@@ -129,5 +139,8 @@ defmodule SFSObject.DataWrapper do
       data = Map.put(data, key, value)
       decode_map(data, size - 1, input)
     end
+
+    def decode_bool(1), do: true
+    def decode_bool(0), do: false
   end
 end

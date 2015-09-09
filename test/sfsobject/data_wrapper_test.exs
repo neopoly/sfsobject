@@ -69,6 +69,12 @@ defmodule SFSObject.DataWrapperTest do
       assert_decoded <<8, 0, 5, 74, 111, 115, -61, -87>>, string("José")
     end
 
+    test "bool_array" do
+      assert_roundtrip bool_array([true, false])
+
+      assert_decoded <<9, 0, 2, 1, 0>>, bool_array([true, false])
+    end
+
     test "sfsobject" do
       assert_roundtrip object(SFSObject.new)
 
@@ -108,6 +114,7 @@ defmodule SFSObject.DataWrapperTest do
     defp float(value), do: data(:float, value)
     defp double(value), do: data(:double, value)
     defp string(value), do: data(:string, value)
+    defp bool_array(list), do: data(:bool_array, list)
     defp object(value), do: data(:object, value)
 
     defp data(type, value) do
