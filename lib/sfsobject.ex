@@ -5,6 +5,10 @@ defmodule SFSObject do
     %SFSObject{}
   end
 
+  def new(%{} = data) do
+    %SFSObject{data: data}
+  end
+
   def put_null(object, key) do
     put_data(object, key, :null, :null)
   end
