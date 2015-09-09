@@ -25,7 +25,7 @@ defmodule SFSObject.DataWrapper do
     end
 
     def encode(%DataWrapper{type: :byte, value: value}, <<output::bytes>>) do
-      [ output | <<2, value::8>> ]
+      [ output | <<2, value::signed-size(8)>> ]
     end
 
     def encode(%DataWrapper{type: :object, value: %SFSObject{data: data}}, <<output::bytes>>) do
@@ -62,7 +62,7 @@ defmodule SFSObject.DataWrapper do
       { DataWrapper.new(:bool, false), input }
     end
 
-    def decode(<<2, value::8, input::bytes>>) do
+    def decode(<<2, value::signed-size(8), input::bytes>>) do
       { DataWrapper.new(:byte, value), input }
     end
 

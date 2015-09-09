@@ -16,8 +16,10 @@ defmodule SFSObject.DataWrapperTest do
 
     test "byte" do
       assert_roundtrip byte(0)
-      assert_roundtrip byte(1)
-      assert_roundtrip byte(256), byte(0)
+      assert_roundtrip byte(127)
+      assert_roundtrip byte(-128)
+
+      assert_roundtrip byte(128), byte(-128)
     end
 
     test "sfsobject" do
@@ -40,7 +42,7 @@ defmodule SFSObject.DataWrapperTest do
 
     defp assert_roundtrip(value, expected) do
       encoded = value |> SFSObject.DataWrapper.Encoder.encode
-      { actual, rest } = encoded |> to_string |> SFSObject.DataWrapper.Decoder.decode
+      { actual, rest } = encoded |> IO.iodata_to_binary |> SFSObject.DataWrapper.Decoder.decode
 
       assert expected == actual
       assert <<>> == rest
