@@ -212,4 +212,15 @@ defmodule SFSObjectTest do
     object = SFSObject.put_object(object, "other", other)
     assert SFSObject.get_object(object, "other") == other
   end
+
+  test "encode/decode" do
+    assert_roundtrip SFSObject.new
+  end
+
+  defp assert_roundtrip(expected) do
+    encoded = expected |> SFSObject.encode
+    actual = encoded |> to_string |> SFSObject.decode
+
+    assert expected == actual
+  end
 end

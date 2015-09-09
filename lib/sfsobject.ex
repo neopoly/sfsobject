@@ -161,6 +161,16 @@ defmodule SFSObject do
     get_data(object, key, :object)
   end
 
+  def encode(%SFSObject{} = object, encoder \\ SFSObject.DataWrapper.Encoder) do
+    data = SFSObject.DataWrapper.new(:object, object)
+    encoder.encode(data)
+  end
+
+  def decode(input, decoder \\ SFSObject.DataWrapper.Decoder) do
+    { data, _ } = decoder.decode(input)
+    data.value
+  end
+
   # TODO CLASS(19);
 
   defp put_data(%SFSObject{data: data} = object, key, type, value) do
