@@ -142,12 +142,12 @@ defmodule SFSObject.DataWrapper do
     end
 
     def decode(<<10, size::size(32), value::binary-size(size), input::bytes>>) do
-      value = transform(:byte, size, value)
+      value = transform(size, 8, value)
       { DataWrapper.new(:byte_array, value), input }
     end
 
     def decode(<<11, size::size(16), value::binary-size(size)-unit(16), input::bytes>>) do
-      value = transform(:short, size, value)
+      value = transform(size, 16, value)
       { DataWrapper.new(:short_array, value), input }
     end
 
@@ -169,18 +169,15 @@ defmodule SFSObject.DataWrapper do
     def decode_bool(1), do: true
     def decode_bool(0), do: false
 
-    defp transform(type, size, pattern) do
-      transform(type, size, pattern, [])
+    defp transform(size, bit_size, pattern) do
+      transform(size, bit_size, pattern, [])
     end
 
-    defp transform(_, 0, _, acc), do: acc
+    defp transform(0, _, _, acc), do: acc
 
-    defp transform(:byte, size, <<val::signed-size(8), input::binary>>, acc) do
-      transform(:byte, size - 1, input, acc ++ [ val ])
-    end
-
-    defp transform(:short, size, <<val::signed-size(16), input::binary>>, acc) do
-      transform(:short, size - 1, input, acc ++ [ val ])
+    defp transform(size, bit_size, input, acc) do
+      <<val::signed-size(bit_size), input::binary>> = input
+      transform(size - 1, bit_size, input, acc ++ [ val ])
     end
   end
 end
