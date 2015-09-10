@@ -87,6 +87,14 @@ defmodule SFSObject.DataWrapper do
       [ output | <<13, size::size(16), data::binary>> ]
     end
 
+    def encode(%DataWrapper{type: :float_array, value: value}, <<output::bytes>>) do
+      size = length(value)
+      data = value
+        |> Enum.map(fn(e) -> <<e::float-signed-size(32)>> end)
+        |> IO.iodata_to_binary
+      [ output | <<14, size::size(16), data::binary>> ]
+    end
+
     def encode(%DataWrapper{type: :object, value: %SFSObject{data: data}}, <<output::bytes>>) do
       [ output | encode_map(data) ]
     end
@@ -172,9 +180,14 @@ defmodule SFSObject.DataWrapper do
       { DataWrapper.new(:int_array, value), input }
     end
 
-def decode(<<13, size::size(16), value::binary-size(size)-unit(64), input::bytes>>) do
+    def decode(<<13, size::size(16), value::binary-size(size)-unit(64), input::bytes>>) do
       value = transform(size, 64, value)
       { DataWrapper.new(:long_array, value), input }
+    end
+
+    def decode(<<14, size::size(16), value::binary-size(size)-unit(32), input::bytes>>) do
+      value = transform2(size, 32, value)
+      { DataWrapper.new(:float_array, value), input }
     end
 
     def decode(<<18, size::size(16), input::bytes>>) do
@@ -195,15 +208,18 @@ def decode(<<13, size::size(16), value::binary-size(size)-unit(64), input::bytes
     def decode_bool(1), do: true
     def decode_bool(0), do: false
 
-    defp transform(size, bit_size, pattern) do
-      transform(size, bit_size, pattern, [])
+    defp transform(size, bit_size, input, acc \\ [])
+    defp transform(0, _, _, acc), do: acc
+    defp transform(size, bit_size, input, acc) do
+      <<val::integer-signed-size(bit_size), input::binary>> = input
+      transform(size - 1, bit_size, input, acc ++ [ val ])
     end
 
-    defp transform(0, _, _, acc), do: acc
-
-    defp transform(size, bit_size, input, acc) do
-      <<val::signed-size(bit_size), input::binary>> = input
-      transform(size - 1, bit_size, input, acc ++ [ val ])
+    defp transform2(size, bit_size, input, acc \\ [])
+    defp transform2(0, _, _, acc), do: acc
+    defp transform2(size, bit_size, input, acc) do
+      <<val::float-signed-size(bit_size), input::binary>> = input
+      transform2(size - 1, bit_size, input, acc ++ [ val ])
     end
   end
 end
