@@ -146,8 +146,7 @@ defmodule SFSObject.DataWrapper do
       { DataWrapper.new(:byte_array, value), input }
     end
 
-    # TODO binary-size(4) is hardcoded?
-    def decode(<<11, size::size(16), value::binary-size(4), input::bytes>>) do
+    def decode(<<11, size::size(16), value::binary-size(size)-unit(16), input::bytes>>) do
       value = transform(:short, size, value)
       { DataWrapper.new(:short_array, value), input }
     end

@@ -84,7 +84,7 @@ defmodule SFSObject.DataWrapperTest do
     test "short_array" do
       assert_roundtrip short_array([32767, -32768])
 
-      assert_decoded <<11, 0, 2, 0, 1, 0, 2>>, short_array([1, 2])
+      assert_decoded <<11, 0, 3, 0, 1, 0, 2, 0, 3>>, short_array([1, 2, 3])
     end
 
     test "sfsobject" do
