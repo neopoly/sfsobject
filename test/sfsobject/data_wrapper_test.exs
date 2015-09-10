@@ -105,6 +105,12 @@ defmodule SFSObject.DataWrapperTest do
       assert_decoded <<14, 0, 1, 63, -128, 0, 0>>, float_array([1.0])
     end
 
+    test "double_array" do
+      assert_roundtrip double_array([1.0, -1.0])
+
+      assert_decoded <<15, 0, 1, 63, -16, 0, 0, 0, 0, 0, 0>>, double_array([1.0])
+    end
+
     test "sfsobject" do
       assert_roundtrip object(SFSObject.new)
 
@@ -150,6 +156,7 @@ defmodule SFSObject.DataWrapperTest do
     defp int_array(list), do: data(:int_array, list)
     defp long_array(list), do: data(:long_array, list)
     defp float_array(list), do: data(:float_array, list)
+    defp double_array(list), do: data(:double_array, list)
     defp object(value), do: data(:object, value)
 
     defp data(type, value) do

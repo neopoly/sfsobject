@@ -95,6 +95,14 @@ defmodule SFSObject.DataWrapper do
       [ output | <<14, size::size(16), data::binary>> ]
     end
 
+    def encode(%DataWrapper{type: :double_array, value: value}, <<output::bytes>>) do
+      size = length(value)
+      data = value
+        |> Enum.map(fn(e) -> <<e::float-signed-size(64)>> end)
+        |> IO.iodata_to_binary
+      [ output | <<15, size::size(16), data::binary>> ]
+    end
+
     def encode(%DataWrapper{type: :object, value: %SFSObject{data: data}}, <<output::bytes>>) do
       [ output | encode_map(data) ]
     end
@@ -188,6 +196,11 @@ defmodule SFSObject.DataWrapper do
     def decode(<<14, size::size(16), value::binary-size(size)-unit(32), input::bytes>>) do
       value = transform2(size, 32, value)
       { DataWrapper.new(:float_array, value), input }
+    end
+
+    def decode(<<15, size::size(16), value::binary-size(size)-unit(64), input::bytes>>) do
+      value = transform2(size, 64, value)
+      { DataWrapper.new(:double_array, value), input }
     end
 
     def decode(<<18, size::size(16), input::bytes>>) do
