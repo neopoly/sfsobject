@@ -116,18 +116,14 @@ defmodule SFSObject.DataWrapper do
       [ output | <<17, size::size(16), data::binary>> ]
     end
 
-    def encode(%DataWrapper{type: :object, value: %SFSObject{data: data}}, output) do
-      [ output | encode_map(data) ]
-    end
-
-    defp encode_map(%{} = data) do
-      type = 18
-      size = Map.size(data)
-      data = Enum.flat_map(data, fn({key, value}) ->
-        [ encode_key(key), encode(value) ]
-      end)
-
-      [ <<type, size::size(16)>> | data ]
+    def encode(%DataWrapper{type: :object, value: %SFSObject{data: value}}, output) do
+      size = Map.size(value)
+      data = value
+        |> Enum.flat_map(fn({key, value}) ->
+            [ encode_key(key), encode(value) ]
+          end)
+        |> IO.iodata_to_binary
+      [ output | <<18, size::size(16), data::binary>> ]
     end
 
     defp encode_key(key) do
