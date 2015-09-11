@@ -100,6 +100,14 @@ defmodule SFSObject.DataWrapper do
       [ output | <<15, size::size(16), data::binary>> ]
     end
 
+    def encode(%DataWrapper{type: :string_array, value: value}, output) do
+      size = length(value)
+      data = value
+        |> Enum.map(fn(e) -> <<byte_size(e)::signed-size(16),e::binary>> end)
+        |> IO.iodata_to_binary
+      [ output | <<16, size::size(16), data::binary>> ]
+    end
+
     def encode(%DataWrapper{type: :object, value: %SFSObject{data: data}}, output) do
       [ output | encode_map(data) ]
     end
@@ -200,6 +208,11 @@ defmodule SFSObject.DataWrapper do
       { DataWrapper.new(:double_array, value), input }
     end
 
+    def decode(<<16, size::size(16), input::bytes>>) do
+      { value, input } = transform3(size, input)
+      { DataWrapper.new(:string_array, value), input }
+    end
+
     def decode(<<18, size::size(16), input::bytes>>) do
       { data, input } = decode_map(%{}, size, input)
       { DataWrapper.new(:object, SFSObject.new(data)), input }
@@ -230,6 +243,13 @@ defmodule SFSObject.DataWrapper do
     defp transform2(size, bit_size, input, acc) do
       <<val::float-signed-size(bit_size), input::binary>> = input
       transform2(size - 1, bit_size, input, acc ++ [ val ])
+    end
+
+    defp transform3(size, input, acc \\ [])
+    defp transform3(0, input, acc), do: { acc, input }
+    defp transform3(size, input, acc) do
+      <<bit_size::signed-size(16), val::binary-size(bit_size), input::binary>> = input
+      transform3(size - 1, input, acc ++ [ val ])
     end
   end
 end
