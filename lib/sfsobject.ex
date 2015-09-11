@@ -161,6 +161,9 @@ defmodule SFSObject do
     get_data(object, key, :object)
   end
 
+  def get_class(_object, _key), do: raise "not implemented"
+  def put_class(_object, _key, _value), do: raise "not implemented"
+
   def encode(%SFSObject{} = object, encoder \\ SFSObject.DataWrapper.Encoder) do
     data = SFSObject.DataWrapper.new(:object, object)
     encoder.encode(data)

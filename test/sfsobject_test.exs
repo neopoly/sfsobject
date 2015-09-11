@@ -213,6 +213,18 @@ defmodule SFSObjectTest do
     assert SFSObject.get_object(object, "other") == other
   end
 
+  test "class" do
+    object = SFSObject.new
+
+    assert_raise RuntimeError, fn ->
+      SFSObject.get_class(object, "klass")
+    end
+
+    assert_raise RuntimeError, fn ->
+      SFSObject.put_class(object, "klass", :some_class)
+    end
+  end
+
   test "encode/decode" do
     assert_roundtrip SFSObject.new
   end
