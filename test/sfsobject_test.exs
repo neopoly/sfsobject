@@ -231,7 +231,7 @@ defmodule SFSObjectTest do
 
   defp assert_roundtrip(expected) do
     encoded = expected |> SFSObject.encode
-    actual = encoded |> IO.iodata_to_binary |> SFSObject.decode
+    actual = encoded |> SFSObject.decode
 
     assert expected == actual
   end

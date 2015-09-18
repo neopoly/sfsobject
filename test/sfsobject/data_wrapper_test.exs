@@ -146,7 +146,7 @@ defmodule SFSObject.DataWrapperTest do
     end
 
     def assert_decoded(input, expected) do
-      { actual, rest } = input |> IO.iodata_to_binary |> SFSObject.DataWrapper.Decoder.decode
+      { actual, rest } = input |> SFSObject.DataWrapper.Decoder.decode
 
       assert expected == actual
       assert <<>> == rest
