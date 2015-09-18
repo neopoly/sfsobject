@@ -81,7 +81,7 @@ defmodule Proxy do
   defp decode_object(data) do
     try do
       {object, rest} = SFSObject.DataWrapper.Decoder.decode(data)
-      #IO.inspect object
+      IO.inspect object
       decode_object(rest)
     rescue
       e ->
