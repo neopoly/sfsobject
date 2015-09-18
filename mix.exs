@@ -4,27 +4,26 @@ defmodule SFSObject.Mixfile do
   def project do
     [app: :sfsobject,
      version: "0.0.1",
-     elixir: "~> 1.0.3",
+     elixir: "~> 1.0",
+     name: "sfsobject",
+     description: "Encode/decode SFSObjects",
+     package: package,
      deps: deps]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type `mix help compile.app` for more information
   def application do
     [applications: []]
   end
 
-  # Dependencies can be hex.pm packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1"}
-  #
-  # Type `mix help deps` for more examples and options
   defp deps do
     [{:mix_test_watch, "~> 0.2", only: :dev}]
+  end
+
+  defp package do
+    [
+      contributors: ["Peter Suschlik"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/splattael/sfsobject"}
+    ]
   end
 end
