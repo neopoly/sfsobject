@@ -28,12 +28,12 @@ defmodule Proxy do
 
   defp do_server(socket, remote) do
     case :gen_tcp.recv(socket, 0) do
-      { :ok, data } ->
-        parse_data(data)
+      {:ok, data} ->
+        start_parse_data(data)
         :gen_tcp.send(remote, data)
         do_server(socket, remote)
 
-        { :error, :closed } -> :ok
+        {:error, :closed} -> :ok
     end
   end
 
@@ -43,12 +43,45 @@ defmodule Proxy do
     remote
   end
 
+  def start_parse_data(data) do
+    spawn(fn -> parse_data(data) end)
+  end
+
+  defp parse_data(<<>>) do
+  end
+
   defp parse_data(<<128, size::size(16), data::binary-size(size), rest::binary>>) do
-    {object, <<>>} = SFSObject.DataWrapper.Decoder.decode(data)
-    IO.inspect object.value
+    decode_object(data)
+    parse_data(rest)
+  end
+
+  defp parse_data(<<160, size::unsigned-size(16), data::binary-size(size), rest::binary>>) do
+    plain = :zlib.uncompress(data)
+    decode_object(plain)
+    parse_data(rest)
   end
 
   defp parse_data(data) do
-    IO.inspect unknown: data
+    x = Inspect.BitString.inspect(data, %Inspect.Opts{limit: 100000})
+    IO.inspect self
+    IO.puts("unknown: #{x}")
+  end
+
+  defp decode_object(<<>>) do
+  end
+
+  defp decode_object(data) do
+    try do
+      {object, rest} = SFSObject.DataWrapper.Decoder.decode(data)
+      #IO.inspect object
+      decode_object(rest)
+    rescue
+      e ->
+        IO.puts "ERROR"
+        x = Inspect.BitString.inspect(data, %Inspect.Opts{limit: 100000})
+        IO.inspect self
+        IO.puts("error: #{x}")
+        raise e
+    end
   end
 end
