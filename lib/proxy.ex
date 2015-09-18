@@ -22,18 +22,17 @@ defmodule Proxy do
   end
 
   defp start_relay(local, remote) do
-    spawn(fn -> do_server(local, remote) end)
-    spawn(fn -> do_server(remote, local) end)
+    spawn(fn -> do_relay(local, remote, <<>>) end)
+    spawn(fn -> do_relay(remote, local, <<>>) end)
   end
 
-  defp do_server(socket, remote) do
+  defp do_relay(socket, remote, rest) do
     case :gen_tcp.recv(socket, 0) do
       {:ok, data} ->
-        start_parse_data(data)
+        rest = start_parse_data(rest <> data)
         :gen_tcp.send(remote, data)
-        do_server(socket, remote)
-
-        {:error, :closed} -> :ok
+        do_relay(socket, remote, rest)
+      {:error, :closed} -> :ok
     end
   end
 
@@ -44,10 +43,11 @@ defmodule Proxy do
   end
 
   def start_parse_data(data) do
-    spawn(fn -> parse_data(data) end)
+    parse_data(data)
   end
 
   defp parse_data(<<>>) do
+    <<>>
   end
 
   defp parse_data(<<128, size::size(16), data::binary-size(size), rest::binary>>) do
@@ -61,10 +61,18 @@ defmodule Proxy do
     parse_data(rest)
   end
 
+  defp parse_data(<<60, 112, 111, rest::binary>>) do
+    IO.puts "cross domain request"
+    <<>>
+  end
+
+  defp parse_data(<<60, 63, 120, rest::binary>>) do
+    IO.puts "cross domain response"
+    <<>>
+  end
+
   defp parse_data(data) do
-    x = Inspect.BitString.inspect(data, %Inspect.Opts{limit: 100000})
-    IO.inspect self
-    IO.puts("unknown: #{x}")
+    data
   end
 
   defp decode_object(<<>>) do
@@ -78,10 +86,14 @@ defmodule Proxy do
     rescue
       e ->
         IO.puts "ERROR"
-        x = Inspect.BitString.inspect(data, %Inspect.Opts{limit: 100000})
         IO.inspect self
-        IO.puts("error: #{x}")
+        IO.puts("error: #{data |> inspect_long}")
         raise e
     end
   end
+
+  def inspect_long(data) do
+    Inspect.BitString.inspect(data, %Inspect.Opts{limit: 100000})
+  end
+
 end
