@@ -110,7 +110,7 @@ defmodule SFSObject.Data.Binary do
       output <> <<17, size::size(16), data::binary>>
     end
 
-    def encode(%Data.Object{v: %SFSObject{data: v}}, output) do
+    def encode(%Data.Object{v: v}, output) do
       size = Map.size(v)
       data = v
         |> Enum.flat_map(fn({key, v}) ->

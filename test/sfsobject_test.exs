@@ -3,7 +3,7 @@ defmodule SFSObjectTest do
 
   test "new" do
     object = SFSObject.new
-    assert object.data == %{}
+    assert object == %{}
   end
 
   test "null" do

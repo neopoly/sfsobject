@@ -1,14 +1,12 @@
 defmodule SFSObject do
   alias SFSObject.Data
 
-  defstruct data: %{}
-
   def new() do
-    %SFSObject{}
+    %{}
   end
 
   def new(%{} = data) do
-    %SFSObject{data: data}
+    data
   end
 
   def put_null(object, key) do
@@ -155,7 +153,7 @@ defmodule SFSObject do
     get_data(object, key, %Data.Array{}).v
   end
 
-  def put_object(object, key, %SFSObject{} = value) do
+  def put_object(object, key, %{} = value) do
     put_data(object, key, %Data.Object{v: value})
   end
 
@@ -166,7 +164,7 @@ defmodule SFSObject do
   def get_class(_object, _key), do: raise "not implemented"
   def put_class(_object, _key, _value), do: raise "not implemented"
 
-  def encode(%SFSObject{} = object, encoder \\ SFSObject.Data.Binary.Encoder) do
+  def encode(SFSObject = object, encoder \\ SFSObject.Data.Binary.Encoder) do
     data = %SFSObject.Data.Object{v: object}
     encoder.encode(data)
   end
@@ -178,12 +176,11 @@ defmodule SFSObject do
 
   # TODO CLASS(19);
 
-  defp put_data(%SFSObject{data: data} = object, key, value) do
-    data = Map.put(data, key, value)
-    %{object | data: data}
+  defp put_data(%{} = data, key, value) do
+    Map.put(data, key, value)
   end
 
-  defp get_data(%SFSObject{data: data}, key, match) do
+  defp get_data(%{} = data, key, match) do
     case Map.fetch(data, key) do
       {:ok, %{v: value}} -> value
       _ -> nil
