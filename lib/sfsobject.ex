@@ -14,7 +14,7 @@ defmodule SFSObject do
   end
 
   def is_null?(object, key) do
-    get_data(object, key, :null)
+    get_data(object, key, :null) != nil
   end
 
   def put_bool(object, key, value) when is_boolean(value) do
@@ -150,7 +150,7 @@ defmodule SFSObject do
   end
 
   def get_array(object, key) do
-    get_data(object, key, %Data.Array{}).v
+    get_data(object, key, %Data.Array{})
   end
 
   def put_object(object, key, %{} = value) do
@@ -171,7 +171,7 @@ defmodule SFSObject do
 
   def decode(input, decoder \\ SFSObject.Data.Binary.Decoder) do
     { data, _ } = decoder.decode(input)
-    data.value
+    data.v
   end
 
   # TODO CLASS(19);
@@ -180,9 +180,10 @@ defmodule SFSObject do
     Map.put(data, key, value)
   end
 
-  defp get_data(%{} = data, key, match) do
+  defp get_data(%{} = data, key, _type) do
     case Map.fetch(data, key) do
       {:ok, %{v: value}} -> value
+      {:ok, value} -> value
       _ -> nil
     end
   end
