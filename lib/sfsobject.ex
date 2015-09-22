@@ -1,4 +1,6 @@
 defmodule SFSObject do
+  alias SFSObject.Data
+
   defstruct data: %{}
 
   def new() do
@@ -10,23 +12,23 @@ defmodule SFSObject do
   end
 
   def put_null(object, key) do
-    put_data(object, key, :null, :null)
+    put_data(object, key, %Data.Null{})
   end
 
   def is_null?(object, key) do
-    get_data(object, key, :null) == :null
+    get_data(object, key, :null)
   end
 
   def put_bool(object, key, value) when is_boolean(value) do
-    put_data(object, key, :bool, value)
+    put_data(object, key, %Data.Bool{v: value})
   end
 
   def get_bool(object, key) do
-    get_data(object, key, :bool)
+    get_data(object, key, %Data.Bool{})
   end
 
   def put_byte(object, key, value) when is_integer(value) do
-    put_data(object, key, :byte, value)
+    put_data(object, key, %Data.Byte{v: value})
   end
 
   def get_byte(object, key) do
@@ -34,7 +36,7 @@ defmodule SFSObject do
   end
 
   def put_short(object, key, value) when is_integer(value) do
-    put_data(object, key, :short, value)
+    put_data(object, key, %Data.Short{v: value})
   end
 
   def get_short(object, key) do
@@ -42,7 +44,7 @@ defmodule SFSObject do
   end
 
   def put_int(object, key, value) when is_integer(value) do
-    put_data(object, key, :int, value)
+    put_data(object, key, %Data.Int{v: value})
   end
 
   def get_int(object, key) do
@@ -50,7 +52,7 @@ defmodule SFSObject do
   end
 
   def put_long(object, key, value) when is_number(value) do
-    put_data(object, key, :long, value)
+    put_data(object, key, %Data.Long{v: value})
   end
 
   def get_long(object, key) do
@@ -58,7 +60,7 @@ defmodule SFSObject do
   end
 
   def put_float(object, key, value) when is_float(value) do
-    put_data(object, key, :float, value)
+    put_data(object, key, %Data.Float{v: value})
   end
 
   def get_float(object, key) do
@@ -66,7 +68,7 @@ defmodule SFSObject do
   end
 
   def put_double(object, key, value) when is_float(value) do
-    put_data(object, key, :double, value)
+    put_data(object, key, %Data.Double{v: value})
   end
 
   def get_double(object, key) do
@@ -74,7 +76,7 @@ defmodule SFSObject do
   end
 
   def put_string(object, key, value) when is_binary(value) do
-    put_data(object, key, :string, value)
+    put_data(object, key, %Data.String{v: value})
   end
 
   def get_string(object, key) do
@@ -82,7 +84,7 @@ defmodule SFSObject do
   end
 
   def put_bool_array(object, key, value) when is_list(value) do
-    put_data(object, key, :bool_array, value)
+    put_data(object, key, %Data.BoolArray{v: value})
   end
 
   def get_bool_array(object, key) do
@@ -90,7 +92,7 @@ defmodule SFSObject do
   end
 
   def put_byte_array(object, key, value) when is_list(value) do
-    put_data(object, key, :byte_array, value)
+    put_data(object, key, %Data.ByteArray{v: value})
   end
 
   def get_byte_array(object, key) do
@@ -98,7 +100,7 @@ defmodule SFSObject do
   end
 
   def put_short_array(object, key, value) when is_list(value) do
-    put_data(object, key, :short_array, value)
+    put_data(object, key, %Data.ShortArray{v: value})
   end
 
   def get_short_array(object, key) do
@@ -106,7 +108,7 @@ defmodule SFSObject do
   end
 
   def put_int_array(object, key, value) when is_list(value) do
-    put_data(object, key, :int_array, value)
+    put_data(object, key, %Data.IntArray{v: value})
   end
 
   def get_int_array(object, key) do
@@ -114,7 +116,7 @@ defmodule SFSObject do
   end
 
   def put_long_array(object, key, value) when is_list(value) do
-    put_data(object, key, :long_array, value)
+    put_data(object, key, %Data.LongArray{v: value})
   end
 
   def get_long_array(object, key) do
@@ -122,7 +124,7 @@ defmodule SFSObject do
   end
 
   def put_float_array(object, key, value) when is_list(value) do
-    put_data(object, key, :float_array, value)
+    put_data(object, key, %Data.Float{v: value})
   end
 
   def get_float_array(object, key) do
@@ -130,7 +132,7 @@ defmodule SFSObject do
   end
 
   def put_double_array(object, key, value) when is_list(value) do
-    put_data(object, key, :double_array, value)
+    put_data(object, key, %Data.FloatArray{v: value})
   end
 
   def get_double_array(object, key) do
@@ -138,7 +140,7 @@ defmodule SFSObject do
   end
 
   def put_string_array(object, key, value) when is_list(value) do
-    put_data(object, key, :string_array, value)
+    put_data(object, key, %Data.StringArray{v: value})
   end
 
   def get_string_array(object, key) do
@@ -146,15 +148,15 @@ defmodule SFSObject do
   end
 
   def put_array(object, key, value) when is_list(value) do
-    put_data(object, key, :array, value)
+    put_data(object, key, %Data.Array{v: value})
   end
 
   def get_array(object, key) do
-    get_data(object, key, :array)
+    get_data(object, key, %Data.Array{}).v
   end
 
   def put_object(object, key, %SFSObject{} = value) do
-    put_data(object, key, :object, value)
+    put_data(object, key, %Data.Object{v: value})
   end
 
   def get_object(object, key) do
@@ -164,27 +166,26 @@ defmodule SFSObject do
   def get_class(_object, _key), do: raise "not implemented"
   def put_class(_object, _key, _value), do: raise "not implemented"
 
-  def encode(%SFSObject{} = object, encoder \\ SFSObject.DataWrapper.Encoder) do
-    data = SFSObject.DataWrapper.new(:object, object)
+  def encode(%SFSObject{} = object, encoder \\ SFSObject.Data.Binary.Encoder) do
+    data = %SFSObject.Data.Object{v: object}
     encoder.encode(data)
   end
 
-  def decode(input, decoder \\ SFSObject.DataWrapper.Decoder) do
+  def decode(input, decoder \\ SFSObject.Data.Binary.Decoder) do
     { data, _ } = decoder.decode(input)
     data.value
   end
 
   # TODO CLASS(19);
 
-  defp put_data(%SFSObject{data: data} = object, key, type, value) do
-    wrap = SFSObject.DataWrapper.new(type, value)
-    data = Map.put(data, key, wrap)
+  defp put_data(%SFSObject{data: data} = object, key, value) do
+    data = Map.put(data, key, value)
     %{object | data: data}
   end
 
-  defp get_data(%SFSObject{data: data}, key, type) do
+  defp get_data(%SFSObject{data: data}, key, match) do
     case Map.fetch(data, key) do
-      {:ok, %SFSObject.DataWrapper{type: ^type, value: value}} -> value
+      {:ok, %{v: value}} -> value
       _ -> nil
     end
   end

@@ -194,8 +194,8 @@ defmodule SFSObjectTest do
     object = SFSObject.new
     assert SFSObject.get_array(object, "key") == nil
 
-    string = SFSObject.DataWrapper.new(:string, "hello")
-    int = SFSObject.DataWrapper.new(:int, 1)
+    string = %SFSObject.Data.String{v: "hello"}
+    int = %SFSObject.Data.Int{v: 1}
 
     object = SFSObject.put_array(object, "key", [string, int])
 
