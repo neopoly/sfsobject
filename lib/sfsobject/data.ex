@@ -17,6 +17,7 @@ defmodule SFSObject.Data do
 
   defmodule Null do
     defstruct []
+    def type, do: %__MODULE__{}
     def new, do: %__MODULE__{}
   end
 
@@ -40,4 +41,32 @@ defmodule SFSObject.Data do
 
   defdata Array
   defdata Object
+end
+
+defmodule SFSObject.Data.Coder.Binary do
+  alias SFSObject.Data
+
+  def encode(%Data.Null{}) do
+    <<0>>
+  end
+  def decode(<<0>>) do
+    Data.Null.new
+  end
+
+  def encode(%Data.Bool{v: v}) do
+    x = if v do 1 else 0 end
+    <<1, x>>
+  end
+  def decode(<<1, 1>>), do: Data.Bool.new(true)
+  def decode(<<1, 0>>), do: Data.Bool.new(false)
+
+  def encode(%Data.Byte{v: v}) do
+    <<2, v::signed-size(8)>>
+  end
+  def decode(<<2, v::signed-size(8)>>), do: Data.Byte.new(v)
+
+  def encode(%Data.String{v: v}) do
+    <<8, byte_size(v)::size(16), v::binary>>
+  end
+  def decode(<<8, size::size(16), v::binary-size(size)>>), do: Data.String.new(v)
 end
