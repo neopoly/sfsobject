@@ -164,7 +164,7 @@ defmodule SFSObject do
   def get_class(_object, _key), do: raise "not implemented"
   def put_class(_object, _key, _value), do: raise "not implemented"
 
-  def encode(SFSObject = object, encoder \\ SFSObject.Data.Binary.Encoder) do
+  def encode(%{} = object, encoder \\ SFSObject.Data.Binary.Encoder) do
     data = %SFSObject.Data.Object{v: object}
     encoder.encode(data)
   end
