@@ -45,75 +45,55 @@ defmodule SFSObject.Binary.Encoder do
 
   def encode({:byte_array, v}, output) do
     size = length(v)
-    data = v
-            |> Enum.map(fn(e) -> <<e::signed-size(8)>> end)
-            |> IO.iodata_to_binary
+    data = transform(v, 8, output)
     output <> <<10, size::size(32), data::binary>>
   end
 
   def encode({:short_array, v}, output) do
     size = length(v)
-    data = v
-            |> Enum.map(fn(e) -> <<e::signed-size(16)>> end)
-            |> IO.iodata_to_binary
+    data = transform(v, 16, output)
     output <> <<11, size::size(16), data::binary>>
   end
 
   def encode({:int_array, v}, output) do
     size = length(v)
-    data = v
-            |> Enum.map(fn(e) -> <<e::signed-size(32)>> end)
-            |> IO.iodata_to_binary
+    data = transform(v, 32, output)
     output <> <<12, size::size(16), data::binary>>
   end
 
   def encode({:long_array, v}, output) do
     size = length(v)
-    data = v
-            |> Enum.map(fn(e) -> <<e::signed-size(64)>> end)
-            |> IO.iodata_to_binary
+    data = transform(v, 64, output)
     output <> <<13, size::size(16), data::binary>>
   end
 
   def encode({:float_array, v}, output) do
     size = length(v)
-    data = v
-            |> Enum.map(fn(e) -> <<e::float-signed-size(32)>> end)
-            |> IO.iodata_to_binary
+    data = transform2(v, 32, output)
     output <> <<14, size::size(16), data::binary>>
   end
 
   def encode({:double_array, v}, output) do
     size = length(v)
-    data = v
-            |> Enum.map(fn(e) -> <<e::float-signed-size(64)>> end)
-            |> IO.iodata_to_binary
+    data = transform2(v, 64, output)
     output <> <<15, size::size(16), data::binary>>
   end
 
   def encode({:string_array, v}, output) do
     size = length(v)
-    data = v
-            |> Enum.map(fn(e) -> <<byte_size(e)::signed-size(16),e::binary>> end)
-            |> IO.iodata_to_binary
+    data = transform3(v, 16, output)
     output <> <<16, size::size(16), data::binary>>
   end
 
   def encode({:array, v}, output) do
     size = length(v)
-    data = v
-            |> Enum.map(fn(e) -> encode(e) end)
-            |> IO.iodata_to_binary
+    data = transform4(v, output)
     output <> <<17, size::size(16), data::binary>>
   end
 
   def encode({:object, v}, output) do
     size = Map.size(v)
-    data = v
-    |> Enum.flat_map(fn({key, v}) ->
-    [ encode_key(key), encode(v) ]
-    end)
-    |> IO.iodata_to_binary
+    data = transform5(Map.to_list(v), output)
     output <> <<18, size::size(16), data::binary>>
   end
 
@@ -123,4 +103,30 @@ defmodule SFSObject.Binary.Encoder do
 
   defp encode_bool(true), do: 1
   defp encode_bool(false), do: 0
+
+  defp transform([], _, output), do: output
+  defp transform([val|rest], bit_size, output) do
+    transform(rest, bit_size, output <> <<val::signed-size(bit_size)>>)
+  end
+
+  defp transform2([], _, output), do: output
+  defp transform2([val|rest], bit_size, output) do
+    transform2(rest, bit_size, output <> <<val::float-signed-size(bit_size)>>)
+  end
+
+  defp transform3([], _, output), do: output
+  defp transform3([val|rest], bit_size, output) do
+    transform3(rest, bit_size,
+      output <> <<byte_size(val)::signed-size(bit_size),val::binary>>)
+  end
+
+  defp transform4([], output), do: output
+  defp transform4([val|rest], output) do
+    transform4(rest, encode(val, output))
+  end
+
+  defp transform5([], output), do: output
+  defp transform5([{key, val}|rest], output) do
+    transform5(rest, output <> encode_key(key) <> encode(val) )
+  end
 end
