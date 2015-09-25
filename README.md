@@ -24,6 +24,6 @@ binary = SFSObject.encode(object)
 ## Release
 
 * increase `version:` in `mix.exs`
-* `git commit -m "Release vVERSION"`
+* `git commit -am "Release vVERSION"`
 * `git tag vVERSION`
 * `mix hex.publish`
