@@ -20,3 +20,9 @@ binary = SFSObject.encode(object)
 
     $ mix deps.get
     $ mix test.watch
+
+## Release
+
+* increase `version:` in `mix.exs`
+* `git commit -m "Release vVERSION"`
+* `git tag vVERSION`
