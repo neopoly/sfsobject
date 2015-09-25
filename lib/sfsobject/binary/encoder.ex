@@ -45,49 +45,49 @@ defmodule SFSObject.Binary.Encoder do
 
   def encode({:byte_array, v}, output) do
     size = length(v)
-    data = transform(v, 8, output)
+    data = transform(v, output, fn val -> <<val::signed-size(8)>> end)
     output <> <<10, size::size(32), data::binary>>
   end
 
   def encode({:short_array, v}, output) do
     size = length(v)
-    data = transform(v, 16, output)
+    data = transform(v, output, fn val -> <<val::signed-size(16)>> end)
     output <> <<11, size::size(16), data::binary>>
   end
 
   def encode({:int_array, v}, output) do
     size = length(v)
-    data = transform(v, 32, output)
+    data = transform(v, output, fn val -> <<val::signed-size(32)>> end)
     output <> <<12, size::size(16), data::binary>>
   end
 
   def encode({:long_array, v}, output) do
     size = length(v)
-    data = transform(v, 64, output)
+    data = transform(v, output, fn val -> <<val::signed-size(64)>> end)
     output <> <<13, size::size(16), data::binary>>
   end
 
   def encode({:float_array, v}, output) do
     size = length(v)
-    data = transform2(v, 32, output)
+    data = transform(v, output, fn val -> <<val::float-signed-size(32)>> end)
     output <> <<14, size::size(16), data::binary>>
   end
 
   def encode({:double_array, v}, output) do
     size = length(v)
-    data = transform2(v, 64, output)
+    data = transform(v, output, fn val -> <<val::float-signed-size(64)>> end)
     output <> <<15, size::size(16), data::binary>>
   end
 
   def encode({:string_array, v}, output) do
     size = length(v)
-    data = transform3(v, 16, output)
+    data = transform(v, output, fn val -> <<byte_size(val)::signed-size(16),val::binary>> end)
     output <> <<16, size::size(16), data::binary>>
   end
 
   def encode({:array, v}, output) do
     size = length(v)
-    data = transform4(v, output)
+    data = transform(v, output, fn val -> encode(val, output) end)
     output <> <<17, size::size(16), data::binary>>
   end
 
@@ -104,25 +104,9 @@ defmodule SFSObject.Binary.Encoder do
   defp encode_bool(true), do: 1
   defp encode_bool(false), do: 0
 
-  defp transform([], _, output), do: output
-  defp transform([val|rest], bit_size, output) do
-    transform(rest, bit_size, output <> <<val::signed-size(bit_size)>>)
-  end
-
-  defp transform2([], _, output), do: output
-  defp transform2([val|rest], bit_size, output) do
-    transform2(rest, bit_size, output <> <<val::float-signed-size(bit_size)>>)
-  end
-
-  defp transform3([], _, output), do: output
-  defp transform3([val|rest], bit_size, output) do
-    transform3(rest, bit_size,
-      output <> <<byte_size(val)::signed-size(bit_size),val::binary>>)
-  end
-
-  defp transform4([], output), do: output
-  defp transform4([val|rest], output) do
-    transform4(rest, encode(val, output))
+  defp transform([], output, _fun), do: output
+  defp transform([val|rest], output, fun) do
+    transform(rest, output <> fun.(val), fun)
   end
 
   defp transform5([], output), do: output
