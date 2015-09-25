@@ -41,42 +41,53 @@ defmodule SFSObject.Binary.Decoder do
   end
 
   def decode(<<10, size::size(32), v::binary-size(size), input::bytes>>) do
-    v = transform(size, 8, v)
+    fun = fn input -> <<val::integer-signed-size(8), rest::binary>> = input; {val, rest} end
+    {v, _} = transform(size, v, fun)
     { {:byte_array, v}, input }
   end
 
   def decode(<<11, size::size(16), v::binary-size(size)-unit(16), input::bytes>>) do
-    v = transform(size, 16, v)
+    fun = fn input -> <<val::integer-signed-size(16), rest::binary>> = input; {val, rest} end
+    {v, _} = transform(size, v, fun)
     { {:short_array, v}, input }
   end
 
   def decode(<<12, size::size(16), v::binary-size(size)-unit(32), input::bytes>>) do
-    v = transform(size, 32, v)
+    fun = fn input -> <<val::integer-signed-size(32), rest::binary>> = input; {val, rest} end
+    {v, _} = transform(size, v, fun)
     { {:int_array, v}, input }
   end
 
   def decode(<<13, size::size(16), v::binary-size(size)-unit(64), input::bytes>>) do
-    v = transform(size, 64, v)
+    fun = fn input -> <<val::integer-signed-size(64), rest::binary>> = input; {val, rest} end
+    {v, _} = transform(size, v, fun)
     { {:long_array, v}, input }
   end
 
   def decode(<<14, size::size(16), v::binary-size(size)-unit(32), input::bytes>>) do
-    v = transform2(size, 32, v)
+    fun = fn input -> <<val::float-signed-size(32), rest::binary>> = input; {val, rest} end
+    {v, _} = transform(size, v, fun)
     { {:float_array, v}, input }
   end
 
   def decode(<<15, size::size(16), v::binary-size(size)-unit(64), input::bytes>>) do
-    v = transform2(size, 64, v)
+    fun = fn input -> <<val::float-signed-size(64), rest::binary>> = input; {val, rest} end
+    {v, _} = transform(size, v, fun)
     { {:double_array, v}, input }
   end
 
   def decode(<<16, size::size(16), input::bytes>>) do
-    { v, input } = transform3(size, input)
+    fun = fn input ->
+      <<s::signed-size(16), val::binary-size(s), input::binary>> = input
+      {val, input}
+    end
+    {v, input} = transform(size, input, fun)
     { {:string_array, v}, input }
   end
 
   def decode(<<17, size::size(16), input::bytes>>) do
-    { v, input } = transform4(size, input)
+    fun = fn input -> decode(input) end
+    {v, input} = transform(size, input, fun)
     { {:array, v}, input }
   end
 
@@ -98,31 +109,10 @@ defmodule SFSObject.Binary.Decoder do
   def decode_bool(1), do: true
   def decode_bool(0), do: false
 
-  defp transform(size, bit_size, input, acc \\ [])
-  defp transform(0, _, _, acc), do: acc
-  defp transform(size, bit_size, input, acc) do
-    <<val::integer-signed-size(bit_size), input::binary>> = input
-    transform(size - 1, bit_size, input, acc ++ [ val ])
-  end
-
-  defp transform2(size, bit_size, input, acc \\ [])
-  defp transform2(0, _, _, acc), do: acc
-  defp transform2(size, bit_size, input, acc) do
-    <<val::float-signed-size(bit_size), input::binary>> = input
-    transform2(size - 1, bit_size, input, acc ++ [ val ])
-  end
-
-  defp transform3(size, input, acc \\ [])
-  defp transform3(0, input, acc), do: { acc, input }
-  defp transform3(size, input, acc) do
-    <<bit_size::signed-size(16), val::binary-size(bit_size), input::binary>> = input
-    transform3(size - 1, input, acc ++ [ val ])
-  end
-
-  defp transform4(size, input, acc \\ [])
-  defp transform4(0, input, acc), do: { acc, input }
-  defp transform4(size, input, acc) do
-    { val, input } = decode(input)
-    transform4(size - 1, input, acc ++ [ val ])
+  defp transform(size, input, fun, acc \\ [])
+  defp transform(0, input, _, acc), do: {acc, input}
+  defp transform(size, input, fun, acc) do
+    {val, rest} = fun.(input)
+    transform(size - 1, rest, fun, acc ++ [ val ])
   end
 end
