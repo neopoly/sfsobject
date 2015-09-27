@@ -36,7 +36,8 @@ defmodule SFSObject.Binary.Decoder do
   end
 
   def decode(<<9, size::size(16), v::binary-size(size), input::bytes>>) do
-    v = v |> to_char_list |> Enum.map(&decode_bool/1)
+    fun = fn input -> <<val, rest::binary>> = input; {val == 1, rest} end
+    {v, _} = transform(size, v, fun)
     { {:bool_array, v}, input }
   end
 
@@ -100,9 +101,6 @@ defmodule SFSObject.Binary.Decoder do
     {v, input} = transform(size, input, fun, %{})
     { {:object, SFSObject.new(v)}, input }
   end
-
-  def decode_bool(1), do: true
-  def decode_bool(0), do: false
 
   defp transform(size, input, fun, acc \\ [])
   defp transform(0, input, _, acc), do: {acc, input}
