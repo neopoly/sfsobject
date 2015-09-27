@@ -92,18 +92,13 @@ defmodule SFSObject.Binary.Decoder do
   end
 
   def decode(<<18, size::size(16), input::bytes>>) do
-    { data, input } = decode_map(%{}, size, input)
-    { {:object, SFSObject.new(data)}, input }
-  end
-
-  defp decode_map(data, 0, <<input::bytes>>) do
-    { data, input }
-  end
-
-  defp decode_map(data, size, <<key_length::size(16), key::binary-size(key_length), input::bytes>>) do
-    { v, input } = decode(input)
-    data = Map.put(data, key, v)
-    decode_map(data, size - 1, input)
+    fun = fn input ->
+      <<len::size(16), key::binary-size(len), input::bytes>> = input
+      {val, input} = decode(input)
+      {{key, val}, input}
+    end
+    {v, input} = transform(size, input, fun, %{})
+    { {:object, SFSObject.new(v)}, input }
   end
 
   def decode_bool(1), do: true
@@ -113,6 +108,9 @@ defmodule SFSObject.Binary.Decoder do
   defp transform(0, input, _, acc), do: {acc, input}
   defp transform(size, input, fun, acc) do
     {val, rest} = fun.(input)
-    transform(size - 1, rest, fun, acc ++ [ val ])
+    transform(size - 1, rest, fun, accumulate(acc, val))
   end
+
+  defp accumulate(acc, val) when is_list(acc), do: acc ++ [val]
+  defp accumulate(acc, {key, val}) when is_map(acc), do: Map.put(acc, key, val)
 end
