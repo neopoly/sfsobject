@@ -39,7 +39,7 @@ defmodule SFSObject.Binary.Encoder do
 
   def encode({:bool_array, v}, output) do
     size = length(v)
-    data = v |> Enum.map(&encode_bool/1) |> IO.iodata_to_binary
+    data = transform(v, output, fn val -> <<encode_bool(val)::size(8)>> end)
     output <> <<9, size::size(16), data::binary>>
   end
 
