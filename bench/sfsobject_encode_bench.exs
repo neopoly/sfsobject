@@ -23,6 +23,11 @@ defmodule SFSObject.EncodeBench do
     SFSObject.encode(@sfsobject)
   end
 
+  @sfsobject @empty |> SFSObject.put_bool_array("a", [true, false])
+  bench "encode bool array" do
+    SFSObject.encode(@sfsobject)
+  end
+
   @sfsobject @empty |> SFSObject.put_int_array("a", [1,2,3])
   bench "encode int array" do
     SFSObject.encode(@sfsobject)
