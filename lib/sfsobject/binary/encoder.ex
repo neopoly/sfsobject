@@ -81,7 +81,8 @@ defmodule SFSObject.Binary.Encoder do
 
   def encode({:string_array, v}, output) do
     size = length(v)
-    data = transform(v, output, fn val -> <<byte_size(val)::signed-size(16),val::binary>> end)
+    data = transform(v, output, fn val ->
+      <<byte_size(val)::signed-size(16),val::binary>> end)
     output <> <<16, size::size(16), data::binary>>
   end
 
@@ -93,7 +94,8 @@ defmodule SFSObject.Binary.Encoder do
 
   def encode({:object, v}, output) do
     size = Map.size(v)
-    data = transform5(Map.to_list(v), output)
+    data = transform(Map.to_list(v), output, fn {key, val} ->
+      encode_key(key) <> encode(val) end)
     output <> <<18, size::size(16), data::binary>>
   end
 
@@ -107,10 +109,5 @@ defmodule SFSObject.Binary.Encoder do
   defp transform([], output, _fun), do: output
   defp transform([val|rest], output, fun) do
     transform(rest, output <> fun.(val), fun)
-  end
-
-  defp transform5([], output), do: output
-  defp transform5([{key, val}|rest], output) do
-    transform5(rest, output <> encode_key(key) <> encode(val) )
   end
 end
