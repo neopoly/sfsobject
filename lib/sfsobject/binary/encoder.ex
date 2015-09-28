@@ -1,113 +1,67 @@
 defmodule SFSObject.Binary.Encoder do
+  import SFSObject.Binary.Macro
+
   def encode(data_wrapper, output \\ <<>>)
-  def encode({:null, _}, output) do
-    output <> <<0>>
+
+  defencode :null, [0]
+  defencode :bool, [1, encode_bool(v)]
+  defencode :byte, [2, v::signed-size(8)]
+  defencode :short, [3, v::signed-size(16)]
+  defencode :int, [4, v::signed-size(32)]
+  defencode :long, [5, v::signed-size(64)]
+  defencode :float, [6, v::float-signed-size(32)]
+  defencode :double, [7, v::float-signed-size(64)]
+  defencode :string, [8, byte_size(v)::size(16), v::binary]
+
+  defencode :bool_array, [9, length(v)::size(16)] do
+    [encode_bool(val)::size(8)]
   end
 
-  def encode({:bool, v}, output) do
-    output <> <<1, encode_bool(v)>>
+  defencode :byte_array, [10, length(v)::size(32)] do
+    [val::signed-size(8)]
   end
 
-  def encode({:byte, v}, output) do
-    output <> <<2, v::signed-size(8)>>
+  defencode :short_array, [11, length(v)::size(16)] do
+    [val::signed-size(16)]
   end
 
-  def encode({:short, v}, output) do
-    output <> <<3, v::signed-size(16)>>
+  defencode :int_array, [12, length(v)::size(16)] do
+    [val::signed-size(32)]
   end
 
-  def encode({:int, v}, output) do
-    output <> <<4, v::signed-size(32)>>
+  defencode :long_array, [13, length(v)::size(16)] do
+    [val::signed-size(64)]
   end
 
-  def encode({:long, v}, output) do
-    output <> <<5, v::signed-size(64)>>
+  defencode :float_array, [14, length(v)::size(16)] do
+    [val::float-signed-size(32)]
   end
 
-  def encode({:float, v}, output) do
-    output <> <<6, v::float-signed-size(32)>>
+  defencode :double_array, [15, length(v)::size(16)] do
+    [val::float-signed-size(64)]
   end
 
-  def encode({:double, v}, output) do
-    output <> <<7, v::float-signed-size(64)>>
+  defencode :string_array, [16, length(v)::size(16)] do
+    [byte_size(val)::signed-size(16),val::binary]
   end
 
-  def encode({:string, v}, output) do
-    size = byte_size(v)
-    output <> <<8, size::size(16), v::binary>>
+  defencode :array, [17, length(v)::size(16)] do
+    [encode(val, <<>>)::binary]
   end
 
-  def encode({:bool_array, v}, output) do
-    size = length(v)
-    data = transform(v, output, fn val -> <<encode_bool(val)::size(8)>> end)
-    output <> <<9, size::size(16), data::binary>>
+  defencode :object, [18, Map.size(v)::size(16)] do
+    [encode_kv(val)::binary]
   end
 
-  def encode({:byte_array, v}, output) do
-    size = length(v)
-    data = transform(v, output, fn val -> <<val::signed-size(8)>> end)
-    output <> <<10, size::size(32), data::binary>>
-  end
-
-  def encode({:short_array, v}, output) do
-    size = length(v)
-    data = transform(v, output, fn val -> <<val::signed-size(16)>> end)
-    output <> <<11, size::size(16), data::binary>>
-  end
-
-  def encode({:int_array, v}, output) do
-    size = length(v)
-    data = transform(v, output, fn val -> <<val::signed-size(32)>> end)
-    output <> <<12, size::size(16), data::binary>>
-  end
-
-  def encode({:long_array, v}, output) do
-    size = length(v)
-    data = transform(v, output, fn val -> <<val::signed-size(64)>> end)
-    output <> <<13, size::size(16), data::binary>>
-  end
-
-  def encode({:float_array, v}, output) do
-    size = length(v)
-    data = transform(v, output, fn val -> <<val::float-signed-size(32)>> end)
-    output <> <<14, size::size(16), data::binary>>
-  end
-
-  def encode({:double_array, v}, output) do
-    size = length(v)
-    data = transform(v, output, fn val -> <<val::float-signed-size(64)>> end)
-    output <> <<15, size::size(16), data::binary>>
-  end
-
-  def encode({:string_array, v}, output) do
-    size = length(v)
-    data = transform(v, output, fn val ->
-      <<byte_size(val)::signed-size(16),val::binary>> end)
-    output <> <<16, size::size(16), data::binary>>
-  end
-
-  def encode({:array, v}, output) do
-    size = length(v)
-    data = transform(v, output, fn val -> encode(val, output) end)
-    output <> <<17, size::size(16), data::binary>>
-  end
-
-  def encode({:object, v}, output) do
-    size = Map.size(v)
-    data = transform(Map.to_list(v), output, fn {key, val} ->
-      encode_key(key) <> encode(val) end)
-    output <> <<18, size::size(16), data::binary>>
-  end
-
-  defp encode_key(key) do
-    <<String.length(key)::size(16), key::binary>>
+  defp encode_kv({key, value}) do
+    <<String.length(key)::size(16), key::binary, encode(value)::binary>>
   end
 
   defp encode_bool(true), do: 1
   defp encode_bool(false), do: 0
 
-  defp transform([], output, _fun), do: output
-  defp transform([val|rest], output, fun) do
-    transform(rest, output <> fun.(val), fun)
+  defp transform(_, [], output), do: output
+  defp transform(:object, %{} = value, output) do
+    transform(:object, Map.to_list(value), output)
   end
 end
