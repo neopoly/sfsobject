@@ -1,39 +1,25 @@
+defmodule SFSObject.Binary.Macro2 do
+  defmacro defdecode(name, format, to: to) do
+    quote do
+      def decode(<<unquote_splicing(format), input::bytes>>) do
+        {{unquote(name), unquote(to)}, input}
+      end
+    end
+  end
+end
+
 defmodule SFSObject.Binary.Decoder do
-  def decode(<<0, input::bytes>>) do
-    { {:null, :null}, input }
-  end
+  import SFSObject.Binary.Macro2
 
-  def decode(<<1, v, input::bytes>>) do
-    { {:bool, 1 == v}, input }
-  end
-
-  def decode(<<2, v::signed-size(8), input::bytes>>) do
-    { {:byte, v}, input }
-  end
-
-  def decode(<<3, v::signed-size(16), input::bytes>>) do
-    { {:short, v}, input }
-  end
-
-  def decode(<<4, v::signed-size(32), input::bytes>>) do
-    { {:int, v}, input }
-  end
-
-  def decode(<<5, v::signed-size(64), input::bytes>>) do
-    { {:long, v}, input }
-  end
-
-  def decode(<<6, v::float-signed-size(32), input::bytes>>) do
-    { {:float, v}, input }
-  end
-
-  def decode(<<7, v::float-signed-size(64), input::bytes>>) do
-    { {:double, v}, input }
-  end
-
-  def decode(<<8, size::size(16), v::binary-size(size), input::bytes>>) do
-    { {:string, v}, input }
-  end
+  defdecode :null, [0], to: :null
+  defdecode :bool, [1, v], to: v == 1
+  defdecode :byte, [2, v::signed-size(8)], to: v
+  defdecode :short, [3, v::signed-size(16)], to: v
+  defdecode :int, [4, v::signed-size(32)], to: v
+  defdecode :long, [5, v::signed-size(64)], to: v
+  defdecode :float, [6, v::float-signed-size(32)], to: v
+  defdecode :double, [7, v::float-signed-size(64)], to: v
+  defdecode :string, [8, size::size(16), v::binary-size(size)], to: v
 
   def decode(<<9, size::size(16), v::binary-size(size), input::bytes>>) do
     fun = fn input -> <<val, rest::binary>> = input; {val == 1, rest} end
