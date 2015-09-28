@@ -3,6 +3,7 @@ defmodule SFSObject.Binary.Macro do
     quote do
       def encode({unquote(name), v}, output) do
         var!(v) = v
+        _ = var!(v)
         output <> <<unquote_splicing(format)>>
       end
     end
