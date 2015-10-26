@@ -3,7 +3,7 @@ defmodule SFSObject.Mixfile do
 
   def project do
     [app: :sfsobject,
-     version: "0.0.2",
+     version: "0.0.3",
      elixir: "~> 1.0",
      name: "sfsobject",
      description: "Encode/decode SFSObjects",
