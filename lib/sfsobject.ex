@@ -7,6 +7,14 @@ defmodule SFSObject do
     data
   end
 
+  def get(%{} = data, key) do
+    Map.get(data, key)
+  end
+
+  def put(%{} = data, key, {type, _} = tagged) when is_atom(type) do
+    Map.put(data, key, tagged)
+  end
+
   def put_null(object, key) do
     put_data(object, key, :null, :null)
   end
@@ -174,12 +182,12 @@ defmodule SFSObject do
   # TODO CLASS(19);
 
   defp put_data(%{} = data, key, type, value) do
-    Map.put(data, key, {type, value})
+    put(data, key, {type, value})
   end
 
   defp get_data(%{} = data, key, type) do
-    case Map.fetch(data, key) do
-      {:ok, {^type, value}} -> value
+    case get(data, key) do
+      {^type, value} -> value
       _ -> nil
     end
   end

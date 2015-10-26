@@ -2,8 +2,16 @@ defmodule SFSObjectTest do
   use ExUnit.Case
 
   test "new" do
+    assert SFSObject.new == %{}
+    assert SFSObject.new(%{foo: 23}) == %{foo: 23}
+  end
+
+  test "get and put" do
     object = SFSObject.new
-    assert object == %{}
+    assert SFSObject.get(object, "foo") == nil
+
+    object = object |> SFSObject.put "foo", {:string, "bar"}
+    assert SFSObject.get(object, "foo") == {:string, "bar"}
   end
 
   test "null" do
