@@ -103,12 +103,15 @@ defmodule SFSObject.Binary.Decoder do
   end
 
   defp transform(size, input, fun, acc \\ [])
-  defp transform(0, input, _, acc), do: {acc, input}
+  defp transform(0, input, _, acc) when is_list(acc),
+    do: {Enum.reverse(acc), input}
+  defp transform(0, input, _, acc) when is_map(acc),
+    do: {acc, input}
   defp transform(size, input, fun, acc) do
     {val, rest} = fun.(input)
     transform(size - 1, rest, fun, accumulate(acc, val))
   end
 
-  defp accumulate(acc, val) when is_list(acc), do: acc ++ [val]
+  defp accumulate(acc, val) when is_list(acc), do: [val|acc]
   defp accumulate(acc, {key, val}) when is_map(acc), do: Map.put(acc, key, val)
 end
