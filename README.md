@@ -4,7 +4,7 @@ Encode/decode `SFSObject`s in Elixir.
 See http://www.smartfoxserver.com/
 
 :construction: :warning:
-**This project is in very stage. Things will change!**
+**This project is in a very early stage. Things will change!**
 
 ## Usage
 
