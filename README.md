@@ -1,5 +1,7 @@
 # SFSObject
 
+[![Deps Status](https://beta.hexfaktor.org/badge/all/github/splattael/sfsobject.svg)](https://beta.hexfaktor.org/github/splattael/sfsobject)
+
 Encode/decode `SFSObject`s in Elixir.
 See http://www.smartfoxserver.com/
 
