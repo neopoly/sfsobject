@@ -18,7 +18,7 @@ defmodule SFSObject.Mixfile do
   defp deps do
     [
       {:mix_test_watch, "~> 0.2", only: :dev},
-      {:benchfella, "~> 0.2.0", only: :dev}
+      {:benchfella, "~> 0.3.0", only: :dev}
     ]
   end
 
